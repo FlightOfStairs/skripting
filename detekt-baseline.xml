@@ -1,0 +1,8 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <Blacklist timestamp="1559603886079"></Blacklist>
+  <Whitelist timestamp="1559603886079">
+    <ID>MethodOverloading:LocalCommand.kt$LocalCommand</ID>
+    <ID>TooManyFunctions:LocalCommand.kt$LocalCommand</ID>
+  </Whitelist>
+</SmellBaseline>
