@@ -6,10 +6,10 @@ import java.io.File
 
 class LocalTest : StringSpec({
     "Finds command on path" {
-        Local["ls"].file shouldBe File("/bin/ls")
+        Local["ls"].executable shouldBe File("/bin/ls")
     }
 
     "Finds absolute commands" {
-        Local["/bin/ls"].file shouldBe File("/bin/ls")
+        Local["/bin/ls"].executable shouldBe File("/bin/ls")
     }
 })

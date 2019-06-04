@@ -13,11 +13,11 @@ object Local {
 
 typealias Arg = String
 
-class LocalCommand(val file: File) {
-    constructor(path: String) : this(resolvePath(path))
+class LocalCommand(private val givenCommand: String) {
+    val executable = resolveExecutable(givenCommand)
 
     init {
-        check(file.exists())
+        check(executable.exists())
     }
 
     fun withArgs(args: List<Arg>) = BoundCommand(this, args)
@@ -29,7 +29,7 @@ class LocalCommand(val file: File) {
     operator fun get(a: Arg, b: Arg, c: Arg, d: Arg) = withArgs(a, b, c, d)
     operator fun get(a: Arg, b: Arg, c: Arg, d: Arg, e: Arg) = withArgs(a, b, c, d, e)
 
-    override fun toString() = file.toString()
+    override fun toString() = givenCommand.trim()
 }
 
 class BoundCommand(
@@ -41,7 +41,7 @@ class BoundCommand(
 ) {
 
     operator fun invoke(): Int {
-        val commandLine = CommandLine(command.file).apply {
+        val commandLine = CommandLine(command.executable).apply {
             for (arg in args) {
                 addArgument(arg, false)
             }
@@ -55,15 +55,12 @@ class BoundCommand(
         return executor.execute(commandLine)
     }
 
-    override fun toString() = when {
-        args.isEmpty() -> "$command"
-        else -> "$command ${args.joinToString(" ")}"
-    }
+    override fun toString() = "$command ${args.joinToString(" ")}".trim()
 }
 
 private val systemPath = System.getenv("PATH").split(':')
 
-private fun resolvePath(path: String, searchPath: List<String> = systemPath): File {
+private fun resolveExecutable(path: String, searchPath: List<String> = systemPath): File {
     if (path.contains("/")) return File(path).absoluteFile
 
     return searchPath.asSequence()
