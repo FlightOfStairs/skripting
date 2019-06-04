@@ -2,7 +2,6 @@ package org.flightofstairs.skripting
 
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.StringSpec
-import java.io.ByteArrayOutputStream
 
 class ChainTest : StringSpec({
 
@@ -32,12 +31,7 @@ class ChainTest : StringSpec({
                 "wc"("-l")
             }
 
-            println(testChain)
-
-            val stdOut = ByteArrayOutputStream()
-
-            testChain.invokeWithStreams(Streams(System.`in`, stdOut, System.err))
-            stdOut.toString().trim() shouldBe "2"
+            testChain().trim() shouldBe "2"
         }
     }
 })
