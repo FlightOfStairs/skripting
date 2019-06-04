@@ -3,9 +3,12 @@ package org.flightofstairs.skripting
 fun chain(init: Chain.() -> Unit) = Chain().apply(init)
 
 class Chain {
-    val strings = mutableListOf<Pair<String, List<Arg>>>()
+    private val commands = mutableListOf<BoundCommand>()
 
-    operator fun String.invoke(vararg args: Arg) = strings.add(this to args.asList())
+    operator fun String.invoke(vararg args: Arg) = LocalCommand(this)(*args)
+    operator fun LocalCommand.invoke(vararg args: Arg) = commands.add(BoundCommand(this, args.asList()))
+
+    override fun toString() = commands.joinToString(" | ")
 }
 
 fun main() {
@@ -15,7 +18,5 @@ fun main() {
         "wc"("-l")
     }
 
-    commands.strings.forEach {
-        println(it)
-    }
+    println(commands) // /bin/ls | /usr/bin/grep -i foo | /usr/bin/wc -l
 }

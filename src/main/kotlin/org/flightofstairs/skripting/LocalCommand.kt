@@ -29,12 +29,7 @@ class LocalCommand(val file: File) {
     operator fun get(a: Arg, b: Arg, c: Arg, d: Arg) = withArgs(a, b, c, d)
     operator fun get(a: Arg, b: Arg, c: Arg, d: Arg, e: Arg) = withArgs(a, b, c, d, e)
 
-    operator fun invoke() = withArgs()()
-    operator fun invoke(a: Arg) = withArgs(a)()
-    operator fun invoke(a: Arg, b: Arg) = withArgs(a, b)()
-    operator fun invoke(a: Arg, b: Arg, c: Arg) = withArgs(a, b, c)()
-    operator fun invoke(a: Arg, b: Arg, c: Arg, d: Arg) = withArgs(a, b, c, d)()
-    operator fun invoke(a: Arg, b: Arg, c: Arg, d: Arg, e: Arg) = withArgs(a, b, c, d, e)()
+    override fun toString() = file.toString()
 }
 
 class BoundCommand(
@@ -58,6 +53,11 @@ class BoundCommand(
         }
 
         return executor.execute(commandLine)
+    }
+
+    override fun toString() = when {
+        args.isEmpty() -> "$command"
+        else -> "$command ${args.joinToString(" ")}"
     }
 }
 
