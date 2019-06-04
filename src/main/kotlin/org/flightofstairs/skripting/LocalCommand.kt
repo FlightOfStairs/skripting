@@ -4,8 +4,6 @@ import org.apache.commons.exec.CommandLine
 import org.apache.commons.exec.DefaultExecutor
 import org.apache.commons.exec.PumpStreamHandler
 import java.io.File
-import java.io.InputStream
-import java.io.OutputStream
 
 object Local {
     operator fun get(path: String) = LocalCommand(path)
@@ -20,8 +18,7 @@ class LocalCommand(private val givenCommand: String) {
         check(executable.exists())
     }
 
-    fun withArgs(args: List<Arg>) = BoundCommand(this, args)
-    fun withArgs(vararg args: Arg) = BoundCommand(this, args.asList())
+    fun withArgs(vararg args: Arg) = CommandWithArgs(this, args.asList())
 
     operator fun get(a: Arg) = withArgs(a)
     operator fun get(a: Arg, b: Arg) = withArgs(a, b)
@@ -32,15 +29,9 @@ class LocalCommand(private val givenCommand: String) {
     override fun toString() = givenCommand.trim()
 }
 
-class BoundCommand(
-    val command: LocalCommand,
-    val args: List<String>,
-    private val stdIn: InputStream? = null,
-    private val stdOut: OutputStream? = null,
-    private val stdErr: OutputStream? = null
-) {
+class CommandWithArgs(private val command: LocalCommand, private val args: List<String>) : Executable<Int> {
 
-    operator fun invoke(): Int {
+    override fun invokeWithStreams(streams: Streams): Int {
         val commandLine = CommandLine(command.executable).apply {
             for (arg in args) {
                 addArgument(arg, false)
@@ -48,7 +39,7 @@ class BoundCommand(
         }
 
         val executor = DefaultExecutor().apply {
-            streamHandler = PumpStreamHandler(stdOut ?: System.out, stdErr ?: System.err, stdIn)
+            streamHandler = PumpStreamHandler(streams.stdOut, streams.stdErr, streams.stdIn)
             setExitValues(null)
         }
 
