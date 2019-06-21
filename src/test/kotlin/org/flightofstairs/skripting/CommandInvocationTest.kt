@@ -4,9 +4,8 @@ import io.kotlintest.matchers.string.contain
 import io.kotlintest.should
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.StringSpec
+import org.flightofstairs.skripting.testUtils.withTempDir
 import java.io.ByteArrayOutputStream
-
-private val defaultStreams = Streams(System.`in`, System.out, System.err)
 
 class CommandInvocationTest : StringSpec({
     "echo echos" {
@@ -22,11 +21,20 @@ class CommandInvocationTest : StringSpec({
     "ls errors" {
         val stdErr = ByteArrayOutputStream()
 
-        CommandWithArgs(Local["ls"], listOf("/does-not-exist")).invokeWithStreams(defaultStreams.copy(stdErr = stdErr))
+        CommandWithArgs(Local["ls"], listOf("/does-not-exist")).invokeWthContext(rootContext.copy(stdErr = stdErr))
         stdErr.toString().trim() should contain("No such file or directory")
     }
 
     "ls does not error" {
         CommandWithArgs(Local["ls"], listOf())()
+    }
+
+    "cwd is propagated" {
+        withTempDir { dir ->
+            val pwdOutput = inDirectory(dir.canonicalFile) {
+                "pwd"()
+            }.invoke().trim()
+            pwdOutput shouldBe dir.canonicalPath
+        }
     }
 })

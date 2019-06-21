@@ -31,7 +31,7 @@ class LocalCommand(private val givenCommand: String) {
 
 class CommandWithArgs(private val command: LocalCommand, private val args: List<String>) : Executable<Int> {
 
-    override fun invokeWithStreams(streams: Streams): Int {
+    override fun invokeWthContext(context: ExecutionContext): Int {
         val commandLine = CommandLine(command.executable).apply {
             for (arg in args) {
                 addArgument(arg, false)
@@ -39,7 +39,8 @@ class CommandWithArgs(private val command: LocalCommand, private val args: List<
         }
 
         val executor = DefaultExecutor().apply {
-            streamHandler = PumpStreamHandler(streams.stdOut, streams.stdErr, streams.stdIn)
+            workingDirectory = context.cwd
+            streamHandler = PumpStreamHandler(context.stdOut, context.stdErr, context.stdIn)
             setExitValues(null)
         }
 

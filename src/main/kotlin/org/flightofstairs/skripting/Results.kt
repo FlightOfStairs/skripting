@@ -1,0 +1,4 @@
+package org.flightofstairs.skripting
+
+object UnspecifiedSuccess
+object UnspecifiedFailure

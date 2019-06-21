@@ -2,6 +2,7 @@ package org.flightofstairs.skripting
 
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.StringSpec
+import org.flightofstairs.skripting.testUtils.withTempDir
 
 class ChainTest : StringSpec({
 
@@ -20,7 +21,7 @@ class ChainTest : StringSpec({
     }
 
     "chain runs with multiple commands" {
-        withTempDir("ChainTest") { dir ->
+        withTempDir { dir ->
             listOf("1.txt", "2.txt", "3.png").forEach {
                 dir.resolve(it).createNewFile()
             }

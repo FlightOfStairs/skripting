@@ -1,4 +1,4 @@
-package org.flightofstairs.skripting
+package org.flightofstairs.skripting.testUtils
 
 import io.kotlintest.matchers.string.shouldStartWith
 import io.kotlintest.shouldBe
@@ -8,9 +8,9 @@ import java.io.File
 class TempDirTest : StringSpec({
 
     "withTempDir cleans up after itself" {
-        val dirAfterDeletion = withTempDir("TempDirTest") { dir ->
+        val dirAfterDeletion = withTempDir { dir ->
             dir.exists() shouldBe true
-            dir.name shouldStartWith "TempDirTest"
+            dir.name shouldStartWith "org.flightofstairs.skripting.testUtils.TempDirTest"
 
             dir.resolve("foo.txt").createNewFile()
 
