@@ -37,3 +37,7 @@ detekt {
 
     failFast = false
 }
+
+tasks.withType<Wrapper> {
+    gradleVersion = "5.4"
+}
