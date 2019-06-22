@@ -19,11 +19,21 @@ skript {
 }
 ```
 
+Commands may be given as strings or otherwise:
+
+```kotlin
+val ls = Local("ls")
+
+skript {
+    println(ls("-a")) // "LICENSE\nREADME.md\nbuild\n..."
+}
+```
+
 ### Piping
 
 ```kotlin
 val result = skript {
-    chain { "ls"(dir.absolutePath); "grep"("txt"); "wc"("-l") }
+    chain { ls(dir.absolutePath); grep("txt"); wc("-l") }
 }
 
 println(result) // "2\n"
