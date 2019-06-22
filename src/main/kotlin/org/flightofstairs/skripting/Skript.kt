@@ -9,19 +9,13 @@ fun skript(executionContext: ExecutionContext = rootContext, block: SkriptExecut
     SkriptExecutor(executionContext).run(block)
 
 interface Executor {
-    operator fun String.invoke(vararg args: Arg): String
-    operator fun LocalCommand.invoke(vararg args: Arg): String
     operator fun <T> Executable<T>.invoke(): String
 
-    fun chain(init: ExecutableListBuilder.() -> Unit): String
-    fun inDirectory(directory: File, block: SkriptExecutor.() -> Any): Any
-    fun inDirectory(directory: String, block: SkriptExecutor.() -> Any): Any
+    operator fun String.invoke(vararg args: Arg) = LocalCommand(this)(*args)
+    operator fun LocalCommand.invoke(vararg args: Arg) = CommandWithArgs(this, args.asList())()
 }
 
 class SkriptExecutor internal constructor(private val context: ExecutionContext) : Executor {
-    override operator fun String.invoke(vararg args: Arg) = LocalCommand(this)(*args)
-    override operator fun LocalCommand.invoke(vararg args: Arg) = CommandWithArgs(this, args.asList())()
-
     override operator fun <T> Executable<T>.invoke(): String {
         val stdOut = ByteArrayOutputStream()
 
@@ -30,11 +24,25 @@ class SkriptExecutor internal constructor(private val context: ExecutionContext)
         return stdOut.toString()
     }
 
-    override fun chain(init: ExecutableListBuilder.() -> Unit): String = Chain(ExecutableListBuilder().apply(init).getFinalList()).invoke()
-    override fun inDirectory(directory: File, block: SkriptExecutor.() -> Any): Any = skript(context.copy(cwd = directory), block)
-    override fun inDirectory(directory: String, block: SkriptExecutor.() -> Any): Any = inDirectory(File(directory), block)
+    fun chain(init: ExecutableListBuilder.() -> Unit): String = Chain(ExecutableListBuilder().apply(init).getFinalList()).invoke()
+    fun inDirectory(directory: File, block: Executor.() -> Any): Any = skript(context.copy(cwd = directory), block)
+    fun inDirectory(directory: String, block: Executor.() -> Any) = inDirectory(File(directory), block)
 
-    // Todo: Make single-item only
-    fun pipeIn(string: String, block: SkriptExecutor.() -> Any) =
-        skript(context.copy(stdIn = ByteArrayInputStream(string.toByteArray())), block)
+    fun pipeIn(string: String, block: SingleExecutableExecutor.() -> Any): Any {
+        val delegate = SkriptExecutor(context.copy(stdIn = ByteArrayInputStream(string.toByteArray())))
+        return SingleExecutableExecutor(delegate).run(block)
+    }
+}
+
+class SingleExecutableExecutor internal constructor(private val delegate: SkriptExecutor) : Executor {
+    var invoked = false
+
+    override fun <T> Executable<T>.invoke(): String {
+        check(!invoked) { "Cannot pipe input into multiple commands" }
+        invoked = true
+
+        delegate.run {
+            return invoke()
+        }
+    }
 }

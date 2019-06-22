@@ -1,6 +1,7 @@
 package org.flightofstairs.skripting
 
 import io.kotlintest.shouldBe
+import io.kotlintest.shouldThrow
 import io.kotlintest.specs.StringSpec
 import org.flightofstairs.skripting.testUtils.withTempDir
 import java.io.File
@@ -39,6 +40,14 @@ class SkriptTest : StringSpec({
     "Passes stdIn" {
         skript {
             pipeIn("hello world") { "cat"() } shouldBe "hello world"
+        }
+    }
+
+    "Fails on piping to multiple executables" {
+        skript {
+            shouldThrow<IllegalStateException> {
+                pipeIn("hello world") { "cat"(); "cat"() }
+            }
         }
     }
 
