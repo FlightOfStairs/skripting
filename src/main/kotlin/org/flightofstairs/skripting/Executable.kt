@@ -16,15 +16,14 @@ fun <T> simpleExecutable(function: (ExecutionContext) -> T) = object : Executabl
 
 interface Executable<T> {
     fun invokeWthContext(context: ExecutionContext): T
-}
 
-// Warning: These must remain extension functions so that invoke binds more tightly to ExecutableListBuilder methods.
-operator fun <T> Executable<T>.invoke(input: String) = invoke(input.toByteArray())
+    fun simpleInvoke(input: String) = simpleInvoke(input.toByteArray())
 
-operator fun <T> Executable<T>.invoke(input: ByteArray = ByteArray(0)): String {
-    val stdOut = ByteArrayOutputStream()
+    fun simpleInvoke(input: ByteArray = ByteArray(0)): String {
+        val stdOut = ByteArrayOutputStream()
 
-    invokeWthContext(rootContext.copy(stdIn = ByteArrayInputStream(input), stdOut = stdOut))
+        invokeWthContext(rootContext.copy(stdIn = ByteArrayInputStream(input), stdOut = stdOut))
 
-    return stdOut.toString()
+        return stdOut.toString()
+    }
 }

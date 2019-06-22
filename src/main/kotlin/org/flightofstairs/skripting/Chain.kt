@@ -1,10 +1,7 @@
 package org.flightofstairs.skripting
 
-import org.flightofstairs.skripting.utils.ExecutableListBuilder
 import java.io.PipedInputStream
 import java.io.PipedOutputStream
-
-fun chain(init: ExecutableListBuilder.() -> Unit) = Chain(ExecutableListBuilder().apply(init).getFinalList())
 
 class Chain(private val commands: List<Executable<out Any>>) : Executable<Any> {
 

@@ -3,21 +3,24 @@ package org.flightofstairs.skripting
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.StringSpec
 import org.flightofstairs.skripting.testUtils.withTempDir
+import org.flightofstairs.skripting.utils.ExecutableListBuilder
 
 class ChainTest : StringSpec({
 
     "constructs chain with useful toString()" {
-        val chain = chain {
+        val chain = Chain(ExecutableListBuilder().apply {
             "ls"()
             "grep"("-i", "foo")
             "wc"("-l")
-        }
+        }.getFinalList())
 
         chain.toString() shouldBe "ls | grep -i foo | wc -l"
     }
 
     "chain runs with single command" {
-        chain { "echo"("hello world") }().trim() shouldBe "hello world"
+        val chain = Chain(ExecutableListBuilder().apply { "echo"("hello world") }.getFinalList())
+
+        chain.simpleInvoke().trim() shouldBe "hello world"
     }
 
     "chain runs with multiple commands" {
@@ -26,13 +29,13 @@ class ChainTest : StringSpec({
                 dir.resolve(it).createNewFile()
             }
 
-            val testChain = chain {
+            val chain = Chain(ExecutableListBuilder().apply {
                 "ls"(dir.absolutePath)
                 "grep"("txt")
                 "wc"("-l")
-            }
+            }.getFinalList())
 
-            testChain().trim() shouldBe "2"
+            chain.simpleInvoke().trim() shouldBe "2"
         }
     }
 })

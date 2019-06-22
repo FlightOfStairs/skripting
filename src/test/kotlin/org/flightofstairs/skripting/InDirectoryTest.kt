@@ -3,6 +3,7 @@ package org.flightofstairs.skripting
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.StringSpec
 import org.flightofstairs.skripting.testUtils.withTempDir
+import org.flightofstairs.skripting.utils.ExecutableListBuilder
 import java.io.File
 
 class InDirectoryTest : StringSpec({
@@ -10,31 +11,10 @@ class InDirectoryTest : StringSpec({
         val invocationDirectories = mutableListOf<File>()
 
         withTempDir { dir ->
-            inDirectory(dir) {
-                simpleExecutable { invocationDirectories += it.cwd }()
-            }.invoke()
+            val executables = ExecutableListBuilder().apply { simpleExecutable { invocationDirectories += it.cwd }() }
+            InDirectory(dir, executables.getFinalList()).simpleInvoke()
 
             invocationDirectories shouldBe listOf(dir)
-        }
-    }
-
-    "Can be nested" {
-        val invocationDirectories = mutableListOf<File>()
-
-        withTempDir { outer ->
-            val inner = outer.resolve("inner").apply {
-                mkdir()
-            }
-
-            inDirectory(outer) {
-                simpleExecutable { invocationDirectories += it.cwd }()
-
-                inDirectory(inner) {
-                    simpleExecutable { invocationDirectories += it.cwd }()
-                }
-            }.invoke()
-
-            invocationDirectories shouldBe listOf(outer, inner)
         }
     }
 })

@@ -6,7 +6,7 @@ import org.apache.commons.exec.PumpStreamHandler
 import java.io.File
 
 object Local {
-    operator fun get(path: String) = LocalCommand(path)
+    operator fun invoke(path: String) = LocalCommand(path)
 }
 
 typealias Arg = String
