@@ -22,23 +22,19 @@ skript {
 ### Piping
 
 ```kotlin
-skript {
-    val result = chain {
-         "ls"(dir.absolutePath)
-         "grep"("txt")
-         "wc"("-l")
-     }
-    
-    println(result) // "2\n"
+val result = skript {
+    chain { "ls"(dir.absolutePath); "grep"("txt"); "wc"("-l") }
 }
+
+println(result) // "2\n"
 ```
 
 ### Redirection
 
 ```kotlin
-skript {
-    val result = pipeIn("hello world") { "cat"() }
-    
-    println(result) // "hello world"
+val result = skript {
+    pipeIn("hello world") { "cat"() }
 }
+
+println(result) // "hello world"
 ```

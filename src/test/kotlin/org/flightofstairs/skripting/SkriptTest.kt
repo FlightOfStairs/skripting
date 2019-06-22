@@ -14,7 +14,7 @@ class SkriptTest : StringSpec({
     }
 
     "Returns the last value" {
-        skript { "echo"("hello world") } shouldBe "hello world\n"
+        skript { "echo"("hello world") }.trim() shouldBe "hello world"
     }
 
     "Runs a skript in a dir" {

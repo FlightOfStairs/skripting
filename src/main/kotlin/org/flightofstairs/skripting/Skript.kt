@@ -5,7 +5,7 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
 
-fun skript(executionContext: ExecutionContext = rootContext, block: SkriptExecutor.() -> Any): Any =
+fun <T> skript(executionContext: ExecutionContext = rootContext, block: SkriptExecutor.() -> T): T =
     SkriptExecutor(executionContext).run(block)
 
 interface Executor {
@@ -28,7 +28,7 @@ class SkriptExecutor internal constructor(private val context: ExecutionContext)
     fun inDirectory(directory: File, block: Executor.() -> Any): Any = skript(context.copy(cwd = directory), block)
     fun inDirectory(directory: String, block: Executor.() -> Any) = inDirectory(File(directory), block)
 
-    fun pipeIn(string: String, block: SingleExecutableExecutor.() -> Any): Any {
+    fun <T> pipeIn(string: String, block: SingleExecutableExecutor.() -> T): T {
         val delegate = SkriptExecutor(context.copy(stdIn = ByteArrayInputStream(string.toByteArray())))
         return SingleExecutableExecutor(delegate).run(block)
     }
